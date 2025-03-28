@@ -4,7 +4,6 @@ import 'package:foodapp/profile_settings_page.dart';
 import 'package:foodapp/utils/models/products.dart';
 import 'package:foodapp/utils/services/api_service.dart';
 
-
 class MarketApp extends StatefulWidget {
   const MarketApp({super.key});
 
@@ -42,55 +41,18 @@ class _MarketAppState extends State<MarketApp> {
     });
   }
 
- 
-
-  void _showUserSettings(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            ListTile(
-              leading: Icon(Icons.person),
-              title: Text('Profil Ayarları'),
-              onTap: () {
-                Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => ProfileSettingsPageWidget()),
-            );
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.logout),
-              title: Text('Çıkış Yap'),
-              onTap: () {
-                Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => AuthScreen()),
-            );
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-  backgroundColor: Colors.white,
-  foregroundColor: Colors.black, // ikon ve yazı siyah olsun
-  elevation: 2,
   title: const Text(
     "Market Uygulaması",
     style: TextStyle(color: Colors.black),
   ),
-  centerTitle: true,
+  backgroundColor: Colors.white,
+  iconTheme: IconThemeData(color: Colors.black),
   actions: [
     PopupMenuButton<String>(
-      icon: Icon(Icons.more_vert, color: Colors.black), // simge görünür olsun
       onSelected: (value) {
         if (value == 'profile') {
           Navigator.push(
@@ -104,33 +66,19 @@ class _MarketAppState extends State<MarketApp> {
           );
         }
       },
-      itemBuilder: (context) => [
-        PopupMenuItem(
+      itemBuilder: (BuildContext context) => [
+        const PopupMenuItem<String>(
           value: 'profile',
-          child: Row(
-            children: [
-              Icon(Icons.person, color: Colors.black),
-              SizedBox(width: 10),
-              Text('Profil Ayarları'),
-            ],
-          ),
+          child: Text('Profil Ayarları'),
         ),
-        PopupMenuItem(
+        const PopupMenuItem<String>(
           value: 'logout',
-          child: Row(
-            children: [
-              Icon(Icons.logout, color: Colors.black),
-              SizedBox(width: 10),
-              Text('Çıkış Yap'),
-            ],
-          ),
+          child: Text('Çıkış Yap'),
         ),
       ],
     ),
   ],
 ),
-
-
 
       drawer: Drawer(
         child: ListView(

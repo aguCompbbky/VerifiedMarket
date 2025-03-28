@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:foodapp/mainScreen.dart';
+import 'package:foodapp/screens/mainScreen.dart';
 import '../utils/services/connection.dart';
 
 class LoginPage extends StatefulWidget {

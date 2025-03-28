@@ -2,8 +2,9 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:foodapp/auth/auth_screen.dart';
-import 'package:foodapp/utils/services/firebase_options.dart';
 import 'package:foodapp/screens/mainScreen.dart';
+import 'package:foodapp/utils/services/firebase_options.dart';
+
 
 
 
