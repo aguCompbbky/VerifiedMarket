@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:foodapp/auth/auth_screen.dart';
+import 'package:foodapp/profile_settings_page.dart';
 import 'package:foodapp/utils/models/products.dart';
 import 'package:foodapp/utils/services/api_service.dart';
 
@@ -43,10 +45,41 @@ class _MarketAppState extends State<MarketApp> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        actions: [IconButton(onPressed: () {}, icon: Icon(Icons.person))],
-        title: const Text("Market Uygulaması"),
-        centerTitle: true,
-      ),
+  title: const Text(
+    "Market Uygulaması",
+    style: TextStyle(color: Colors.black),
+  ),
+  backgroundColor: Colors.white,
+  iconTheme: IconThemeData(color: Colors.black),
+  actions: [
+    PopupMenuButton<String>(
+      onSelected: (value) {
+        if (value == 'profile') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ProfileSettingsPageWidget()),
+          );
+        } else if (value == 'logout') {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => AuthScreen()),
+          );
+        }
+      },
+      itemBuilder: (BuildContext context) => [
+        const PopupMenuItem<String>(
+          value: 'profile',
+          child: Text('Profil Ayarları'),
+        ),
+        const PopupMenuItem<String>(
+          value: 'logout',
+          child: Text('Çıkış Yap'),
+        ),
+      ],
+    ),
+  ],
+),
+
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,

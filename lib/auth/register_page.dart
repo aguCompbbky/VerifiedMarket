@@ -1,62 +1,56 @@
 import 'package:flutter/material.dart';
-import 'package:foodapp/logic/models/dp_helper.dart';
+import 'package:foodapp/mainScreen.dart';
+import '../services/connection.dart';
 
-class RegisterWidget extends StatefulWidget {
-  const RegisterWidget({super.key});
-
+class RegisterPage extends StatefulWidget {
   @override
-  _RegisterWidgetState createState() => _RegisterWidgetState();
+  State<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _RegisterWidgetState extends State<RegisterWidget> {
-  // TextEditingController'ları burada oluşturuyoruz
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+class _RegisterPageState extends State<RegisterPage> {
+  final TextEditingController emailC = TextEditingController();
+  final TextEditingController passC = TextEditingController();
+
+   void _showDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(content: Text(message)),
+    );
+  }
+
+  Future<void> _handleRegister() async {
+    String message = await Connection.register(emailC.text, passC.text);
+    if (message == "Kayıt başarılı.") {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => MarketApp()),
+      );
+    } else {
+      _showDialog(message);
+    }
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(content: Text(message)),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         TextField(
-          controller: _emailController, 
+          controller: emailC,
           decoration: InputDecoration(labelText: "Email"),
         ),
-        SizedBox(height: 16),
         TextField(
-          controller: _passwordController, 
+          controller: passC,
           decoration: InputDecoration(labelText: "Password"),
-          obscureText: true, 
+          obscureText: true,
         ),
-        SizedBox(height: 24),
-        OutlinedButton(
-          onPressed: () {
-            // TextField'den alınan değerler
-            String email = _emailController.text;
-            String password = _passwordController.text;
-
-            // Email ve şifrenin boş olup olmadığını kontrol ediyoruz
-            if (email.isNotEmpty && password.isNotEmpty) {
-              // Veritabanı işlemi için MySql sınıfı ile bağlantı kuruyoruz
-              MySql db = MySql();
-              db.setUser(email, password);  // Veritabanına kullanıcıyı ekliyoruz
-              print("Registration successful for: $email");
-
-              // Kayıt sonrası input alanlarını temizliyoruz
-              _emailController.clear();
-              _passwordController.clear();
-
-              // Kullanıcıya başarılı bir kayıt mesajı gösteriyoruz
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("User registered successfully!")),
-              );
-            } else {
-              // Eğer alanlar boşsa hata mesajı gösteriyoruz
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("Please fill out all fields")),
-              );
-            }
-          },
-          child: Text("Register"),
+        SizedBox(height: 16),
+        ElevatedButton(
+          onPressed: _handleRegister,
+          child: Text("Kayıt Ol"),
         ),
       ],
     );

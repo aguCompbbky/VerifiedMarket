@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:foodapp/auth.dart';
+import 'package:foodapp/auth/auth_screen.dart';
 import 'package:foodapp/profile_settings_page.dart';
 import 'package:foodapp/utils/models/products.dart';
 import 'package:foodapp/utils/services/api_service.dart';
@@ -42,26 +42,7 @@ class _MarketAppState extends State<MarketApp> {
     });
   }
 
-  //  ListTile(
-  //             leading: Icon(Icons.person),
-  //             title: Text('Profil Ayarları'),
-  //             onTap: () {
-  //               Navigator.push(
-  //             context,
-  //             MaterialPageRoute(builder: (context) => ProfileSettingsPageWidget()),
-  //           );
-  //             },
-  //           ),
-  //           ListTile(
-  //             leading: Icon(Icons.logout),
-  //             title: Text('Çıkış Yap'),
-  //             onTap: () {
-  //               Navigator.push(
-  //             context,
-  //             MaterialPageRoute(builder: (context) => AuthScreen()),
-  //           );
-  //             },
-  //           ),
+ 
 
   void _showUserSettings(BuildContext context) {
     showModalBottomSheet(
@@ -99,10 +80,58 @@ class _MarketAppState extends State<MarketApp> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        actions: [IconButton(onPressed: () {_showUserSettings(context);}, icon: Icon(Icons.person))],
-        title: const Text("Market Uygulaması"),
-        centerTitle: true,
-      ),
+  backgroundColor: Colors.white,
+  foregroundColor: Colors.black, // ikon ve yazı siyah olsun
+  elevation: 2,
+  title: const Text(
+    "Market Uygulaması",
+    style: TextStyle(color: Colors.black),
+  ),
+  centerTitle: true,
+  actions: [
+    PopupMenuButton<String>(
+      icon: Icon(Icons.more_vert, color: Colors.black), // simge görünür olsun
+      onSelected: (value) {
+        if (value == 'profile') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ProfileSettingsPageWidget()),
+          );
+        } else if (value == 'logout') {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => AuthScreen()),
+          );
+        }
+      },
+      itemBuilder: (context) => [
+        PopupMenuItem(
+          value: 'profile',
+          child: Row(
+            children: [
+              Icon(Icons.person, color: Colors.black),
+              SizedBox(width: 10),
+              Text('Profil Ayarları'),
+            ],
+          ),
+        ),
+        PopupMenuItem(
+          value: 'logout',
+          child: Row(
+            children: [
+              Icon(Icons.logout, color: Colors.black),
+              SizedBox(width: 10),
+              Text('Çıkış Yap'),
+            ],
+          ),
+        ),
+      ],
+    ),
+  ],
+),
+
+
+
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
