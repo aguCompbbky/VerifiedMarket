@@ -267,7 +267,7 @@ class _MarketAppState extends State<MarketApp> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                "${product.price ?? 0} TL",
+                                "${product.price ?? 0}",
                                 style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
