@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:foodapp/screens/mainScreen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/services/connection.dart';
 
 class LoginPage extends StatefulWidget {
@@ -33,6 +34,9 @@ Future<void> _handleLogin() async {
 
   String message = await Connection.login(email, password);
   if (message == "Giriş başarılı.") {
+    Connection.loggedInEmail = emailC.text;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString("loggedInEmail", emailC.text);
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => MarketApp()),

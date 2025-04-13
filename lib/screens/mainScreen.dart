@@ -3,6 +3,8 @@ import 'package:foodapp/auth/auth_screen.dart';
 import 'package:foodapp/profile_settings_page.dart';
 import 'package:foodapp/utils/models/products.dart';
 import 'package:foodapp/utils/services/api_service.dart';
+import 'cart_screen.dart';
+import 'package:foodapp/utils/services/cart_services.dart';
 
 class MarketApp extends StatefulWidget {
   const MarketApp({super.key});
@@ -274,7 +276,9 @@ class _MarketAppState extends State<MarketApp> {
                                 ),
                               ),
                               IconButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  CartService.addToCart(product);
+                                },
                                 icon: const Icon(Icons.shopping_cart),
                               ),
                             ],
@@ -310,8 +314,18 @@ class _MarketAppState extends State<MarketApp> {
       _selectedIndex = index;
     });
 
-    if (index == 0) {}
+    if (index == 0) {
+      Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => MarketApp()),
+    );
+    }
 
-    if (index == 1) {}
+    if (index == 1) {
+      Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => CartPage()),
+    );
+    }
   }
 }

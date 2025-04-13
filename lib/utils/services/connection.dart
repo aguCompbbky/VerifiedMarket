@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'package:foodapp/utils/models/products.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Connection {
   static const String baseUrl = "http://10.0.2.2/api"; // XAMPP için
@@ -64,6 +66,25 @@ static Future<bool> updateUserField(String email, String field, String value) as
   final data = jsonDecode(response.body);
   return data['success'] == true;
 }
+
+static Future<List<Product>> getPurchaseHistory() async {
+  final prefs = await SharedPreferences.getInstance();
+  final email = prefs.getString("loggedInEmail") ?? "";
+
+  final response = await http.post(
+    Uri.parse("$baseUrl/get_purchase_history.php"),
+    headers: {'Content-Type': 'application/json'},
+    body: jsonEncode({"email": email}),
+  );
+
+  final data = jsonDecode(response.body);
+
+  if (!data['success']) throw Exception(data['message']);
+
+  final List<dynamic> items = data['history'];
+  return items.map((e) => Product.fromJson(e)).toList();
+}
+
 
 
 }

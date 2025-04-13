@@ -1,4 +1,5 @@
 class Product {
+  final int? id;
   final String? category;
   final String? product;
   final String? description;
@@ -7,6 +8,7 @@ class Product {
   final String? photo;
 
   Product({
+    this.id,
     this.category,
     this.product,
     this.description,
@@ -18,6 +20,7 @@ class Product {
   /// **JSON'dan Nesneye Dönüştürme (Factory Constructor)**
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
+      id: json["id"],
       category: json["category"], // 'catagory' düzeltilmiş hali
       product: json["product"],
       description: json["description"],
@@ -35,6 +38,7 @@ class Product {
   /// **Nesneyi JSON'a Dönüştürme**
   Map<String, dynamic> toJson() {
     return {
+      "id":id,
       "category": category, // 'catagory' yerine düzeltildi
       "product": product,
       "description": description,

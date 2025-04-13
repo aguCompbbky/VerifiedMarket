@@ -97,38 +97,100 @@ class _ProfileSettingsPageWidgetState extends State<ProfileSettingsPageWidget> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text("Profil Ayarları")),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            _buildEditableField(
-              label: "E-posta",
-              controller: emailC,
-              isEditing: isEditingEmail,
-              onEdit: () => setState(() => isEditingEmail = true),
-              onSave: () => _updateField("email"),
-            ),
-            _buildEditableField(
-              label: "Kullanıcı Adı",
-              controller: usernameC,
-              isEditing: isEditingUsername,
-              onEdit: () => setState(() => isEditingUsername = true),
-              onSave: () => _updateField("username"),
-            ),
-            _buildEditableField(
-              label: "Şifre",
-              controller: passwordC,
-              isEditing: isEditingPassword,
-              onEdit: () => setState(() => isEditingPassword = true),
-              onSave: () => _updateField("password"),
-              obscureText: true,
-            ),
-          ],
-        ),
+  @override
+Widget build(BuildContext context) {
+  return Scaffold(
+    backgroundColor: Color(0xFFF8F5FF),
+    appBar: AppBar(
+      backgroundColor: Colors.deepPurple,
+      title: Text("Profil Ayarları"),
+      leading: BackButton(color: Colors.white),
+      centerTitle: true,
+      elevation: 0,
+    ),
+    body: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        children: [
+          _buildProfileTile(
+            icon: Icons.email_outlined,
+            label: "E-posta",
+            controller: emailC,
+            isEditing: isEditingEmail,
+            onEdit: () => setState(() => isEditingEmail = true),
+            onSave: () => _updateField("email"),
+          ),
+          SizedBox(height: 12),
+          _buildProfileTile(
+            icon: Icons.person_outline,
+            label: "Kullanıcı Adı",
+            controller: usernameC,
+            isEditing: isEditingUsername,
+            onEdit: () => setState(() => isEditingUsername = true),
+            onSave: () => _updateField("username"),
+          ),
+          SizedBox(height: 12),
+          _buildProfileTile(
+            icon: Icons.lock_outline,
+            label: "Şifre",
+            controller: passwordC,
+            isEditing: isEditingPassword,
+            onEdit: () => setState(() => isEditingPassword = true),
+            onSave: () => _updateField("password"),
+            obscureText: true,
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
+
+
+Widget _buildProfileTile({
+  required IconData icon,
+  required String label,
+  required TextEditingController controller,
+  required bool isEditing,
+  required VoidCallback onEdit,
+  required VoidCallback onSave,
+  bool obscureText = false,
+}) {
+  return Card(
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    elevation: 3,
+    child: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.deepPurple),
+          SizedBox(width: 16),
+          Expanded(
+            child: TextField(
+              controller: controller,
+              obscureText: obscureText,
+              enabled: isEditing,
+              decoration: InputDecoration(
+                labelText: label,
+                border: InputBorder.none,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: isEditing ? onSave : onEdit,
+            child: Text(
+              isEditing ? "Kaydet" : "Düzenle",
+              style: TextStyle(
+                color: isEditing ? Colors.green : Colors.deepPurple,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+  
+
 }
