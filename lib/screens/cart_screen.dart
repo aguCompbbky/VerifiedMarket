@@ -38,6 +38,14 @@ void _purchaseItems() {
 
   @override
   Widget build(BuildContext context) {
+
+     // toplam fiyatı hesapla
+    double totalPrice = cartItems.fold(0.0, (sum, item) {
+    double price = double.tryParse(item.price?.replaceAll(RegExp(r'[^\d.]'), '') ?? "0") ?? 0.0;
+    return sum + price;
+  });
+
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Sepet"),
@@ -50,7 +58,35 @@ void _purchaseItems() {
       onPressed: () {
         Navigator.pushNamed(context, "/purchase-history");
       },
-    )
+    ),
+    IconButton(
+  icon: Icon(Icons.delete_forever),
+  tooltip: "Sepeti Temizle",
+  onPressed: () async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text("Sepeti Temizle"),
+        content: Text("Tüm ürünleri sepetten silmek istediğine emin misin?"),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text("Vazgeç")),
+          ElevatedButton(onPressed: () => Navigator.pop(context, true), child: Text("Temizle")),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      await CartService.clearCart();
+      setState(() {
+        cartItems = [];
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Sepet başarıyla temizlendi 🧹")),
+      );
+    }
+  },
+),
+
   ],
       ),
       body: cartItems.isEmpty
@@ -69,7 +105,7 @@ void _purchaseItems() {
               Icon(Icons.image_not_supported),
         ),
         title: Text(item.product ?? "Ürün"),
-        subtitle: Text("${item.price ?? "0"} TL"),
+        subtitle: Text("${item.price ?? "0"}"),
         trailing: IconButton(
           icon: Icon(Icons.cancel, color: Colors.red),
           onPressed: () async {
@@ -96,9 +132,8 @@ void _purchaseItems() {
                     backgroundColor: Colors.green,
                     padding: EdgeInsets.symmetric(vertical: 14)),
                 onPressed: _purchaseItems,
-                child: Text(
-                  "Satın Al (${cartItems.length})",
-                  style: TextStyle(fontSize: 18),
+                child: Text("Toplam: ₺${totalPrice.toStringAsFixed(2)}",
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ),
             )

@@ -19,6 +19,7 @@ class CartService {
       cart.add(product);
       await prefs.setString(_cartKey, jsonEncode(cart.map((e) => e.toJson()).toList()));
     }
+    
   }
 
   // Sepetten ürün sil
@@ -82,6 +83,7 @@ class CartService {
   }
   print("SUNUCU DÖNÜŞ: ${response.body}");
 }
+
 
 
   
