@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:foodapp/auth/auth_screen.dart';
+import 'package:foodapp/auth/login_page.dart';
+import 'package:foodapp/product_details.dart';
+
 import 'package:foodapp/profile_settings_page.dart';
-import 'package:foodapp/utils/models/productDetails.dart';
+
 import 'package:foodapp/utils/models/products.dart';
 import 'package:foodapp/utils/services/api_service.dart';
 import 'cart_screen.dart';
@@ -17,7 +19,7 @@ class MarketApp extends StatefulWidget {
 class _MarketAppState extends State<MarketApp> {
   final ProductApi api = ProductApi();
   late Future<List<Product>> products;
-  
+
   int _selectedIndex = 0;
 
   String _selectedCategory = 'None'; // Başlangıçta kategori seçilmemiş
@@ -49,40 +51,44 @@ class _MarketAppState extends State<MarketApp> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-  title: const Text(
-    "Market Uygulaması",
-    style: TextStyle(color: Colors.black),
-  ),
-  backgroundColor: Colors.white,
-  iconTheme: IconThemeData(color: Colors.black),
-  actions: [
-    PopupMenuButton<String>(
-      onSelected: (value) {
-        if (value == 'profile') {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => ProfileSettingsPageWidget()),
-          );
-        } else if (value == 'logout') {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => AuthScreen()),
-          );
-        }
-      },
-      itemBuilder: (BuildContext context) => [
-        const PopupMenuItem<String>(
-          value: 'profile',
-          child: Text('Profil Ayarları'),
+        centerTitle: true,
+        title: const Text(
+          "Market Uygulaması",
+          style: TextStyle(color: Colors.black),
         ),
-        const PopupMenuItem<String>(
-          value: 'logout',
-          child: Text('Çıkış Yap'),
-        ),
-      ],
-    ),
-  ],
-),
+        backgroundColor: Colors.white,
+        iconTheme: IconThemeData(color: Colors.black),
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              if (value == 'profile') {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ProfileSettingsPageWidget(),
+                  ),
+                );
+              } else if (value == 'logout') {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginPage()),
+                );
+              }
+            },
+            itemBuilder:
+                (BuildContext context) => [
+                  const PopupMenuItem<String>(
+                    value: 'profile',
+                    child: Text('Profil Ayarları'),
+                  ),
+                  const PopupMenuItem<String>(
+                    value: 'logout',
+                    child: Text('Çıkış Yap'),
+                  ),
+                ],
+          ),
+        ],
+      ),
 
       drawer: Drawer(
         child: ListView(
@@ -169,147 +175,145 @@ class _MarketAppState extends State<MarketApp> {
       ),
 
       body: FutureBuilder<List<Product>>(
-  future: products,
-  builder: (context, snapshot) {
-    if (snapshot.connectionState == ConnectionState.waiting) {
-      return const Center(child: CircularProgressIndicator());
-    }
+        future: products,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-    if (snapshot.hasError) {
-      return Center(
-        child: Text(
-          "Hata: ${snapshot.error}",
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.red,
-          ),
-        ),
-      );
-    }
-
-    if (!snapshot.hasData || snapshot.data!.isEmpty) {
-      return const Center(
-        child: Text(
-          "Ürün bilgisi bulunamadı.",
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.black54,
-          ),
-        ),
-      );
-    }
-
-    final products = snapshot.data!;
-
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const BouncingScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 10,
-        mainAxisSpacing: 10,
-        childAspectRatio: 0.6,
-      ),
-      itemCount: products.length,
-      itemBuilder: (context, index) {
-        final product = products[index];
-
-        return GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ProductDetailsPage(product: product),
+          if (snapshot.hasError) {
+            return Center(
+              child: Text(
+                "Hata: ${snapshot.error}",
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.red,
+                ),
               ),
             );
-          },
-          child: Card(
-            elevation: 5,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Column(
-              children: [
-                ClipRRect(
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(10),
-                  ),
-                  child: Image.network(
-                    product.photo?.isNotEmpty == true
-                        ? product.photo!
-                        : "https://via.placeholder.com/150",
-                    width: double.infinity,
-                    height: 170,
-                    fit: BoxFit.fill,
-                    errorBuilder: (context, error, stackTrace) =>
-                        const Icon(Icons.image_not_supported, size: 100),
-                  ),
+          }
+
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(
+              child: Text(
+                "Ürün bilgisi bulunamadı.",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black54,
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
+              ),
+            );
+          }
+
+          final products = snapshot.data!;
+
+          return GridView.builder(
+            shrinkWrap: true,
+            physics: const BouncingScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+              childAspectRatio: 0.6,
+            ),
+            itemCount: products.length,
+            itemBuilder: (context, index) {
+              final product = products[index];
+
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder:
+                          (context) => ProductDetailsPage(product: product),
+                    ),
+                  );
+                },
+                child: Card(
+                  elevation: 5,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      
-                          Text(
-                            product.product ?? "Ürün Adı Yok",
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          SizedBox(width: 20)
-                          
-,                          
-                        
-                       
-                      
-                      const SizedBox(height: 4),
-                      Text(
-                        product.description ?? "Açıklama bulunamadı",
-                        style: const TextStyle(fontSize: 12),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+                      ClipRRect(
+                        borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(10),
+                        ),
+                        child: Image.network(
+                          product.photo?.isNotEmpty == true
+                              ? product.photo!
+                              : "https://via.placeholder.com/150",
+                          width: double.infinity,
+                          height: 170,
+                          fit: BoxFit.fill,
+                          errorBuilder:
+                              (context, error, stackTrace) => const Icon(
+                                Icons.image_not_supported,
+                                size: 100,
+                              ),
+                        ),
                       ),
-                      const SizedBox(height: 8),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "${product.price ?? 0}",
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              product.product ?? "Ürün Adı Yok",
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                          ),
-                          IconButton(
-                            onPressed: () {
-                              CartService.addToCart(product);
-                            },
-                            icon: const Icon(Icons.shopping_cart),
-                          ),
-                        ],
+                            SizedBox(width: 20),
+
+                            const SizedBox(height: 4),
+                            Text(
+                              product.description ?? "Açıklama bulunamadı",
+                              style: const TextStyle(fontSize: 12),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  "${product.price ?? 0}",
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                IconButton(
+                                  onPressed: () {
+                                    CartService.addToCart(product);
+                                  },
+                                  icon: const Icon(Icons.shopping_cart),
+                                ),
+                              ],
+                            ),
+                            Text(
+                              "Available: " + product.stock.toString(),
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
                       ),
-                      Text( "Available: " + product.stock.toString(),
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold
-                      ),)
                     ],
                   ),
                 ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  },
-),
-
+              );
+            },
+          );
+        },
+      ),
 
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
@@ -333,16 +337,16 @@ class _MarketAppState extends State<MarketApp> {
 
     if (index == 0) {
       Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => MarketApp()),
-    );
+        context,
+        MaterialPageRoute(builder: (context) => MarketApp()),
+      );
     }
 
     if (index == 1) {
       Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => CartPage()),
-    );
+        context,
+        MaterialPageRoute(builder: (context) => CartPage()),
+      );
     }
   }
 }
