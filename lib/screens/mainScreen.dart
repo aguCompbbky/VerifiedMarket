@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:foodapp/auth/auth_screen.dart';
+import 'package:foodapp/auth/login_page.dart';
+import 'package:foodapp/product_details.dart';
+
 import 'package:foodapp/profile_settings_page.dart';
-import 'package:foodapp/utils/models/productDetails.dart';
+
 import 'package:foodapp/utils/models/products.dart';
 import 'package:foodapp/utils/services/api_service.dart';
 import 'cart_screen.dart';
@@ -49,6 +51,8 @@ class _MarketAppState extends State<MarketApp> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
+
         title: const Text(
           "Market Uygulaması",
           style: TextStyle(color: Colors.black),
@@ -68,7 +72,10 @@ class _MarketAppState extends State<MarketApp> {
               } else if (value == 'logout') {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => AuthScreen()),
+
+                  MaterialPageRoute(builder: (context) => LoginPage()),
+
+                  //MaterialPageRoute(builder: (context) => LoginPage()),
                 );
               }
             },
@@ -292,6 +299,8 @@ class _MarketAppState extends State<MarketApp> {
                                   onPressed: () {
                                     _showQuantityDialog(product);
                                     // CartService.addToCart(product);
+
+                                    CartService.addToCart(product);
                                   },
                                   icon: const Icon(Icons.shopping_cart),
                                 ),
@@ -312,6 +321,7 @@ class _MarketAppState extends State<MarketApp> {
           );
         },
       ),
+
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: _selectedIndex,
