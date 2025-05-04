@@ -1,49 +1,62 @@
 class Product {
   final int? id;
+  final String? brand;
+  final String? products;
   final String? category;
-  final String? product;
   final String? description;
-  final String? price;
+  final int? quantityIdentifier;
   final int? stock;
+  final String? currentOwner;
+  final String? locationName;
+  final String? price;
   final String? photo;
 
   Product({
     this.id,
+    this.brand,
+    this.products,
     this.category,
-    this.product,
     this.description,
-    this.price,
+    this.quantityIdentifier,
     this.stock,
+    this.currentOwner,
+    this.locationName,
+    this.price,
     this.photo,
   });
 
-  /// **JSON'dan Nesneye Dönüştürme (Factory Constructor)**
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
       id: json["id"],
-      category: json["category"], // 'catagory' düzeltilmiş hali
-      product: json["product"],
+      brand: json["brand"],
+      products: json["products"],
+      category: json["category"],
       description: json["description"],
-      price:
-          json["price"]
-              ?.toString(), // Fiyat integer gelebilir, string'e çevrildi
-      stock:
-          json["stock"] is int
-              ? json["stock"]
-              : int.tryParse(json["stock"].toString()),
+      quantityIdentifier: json["quantityIdentifier"] is int
+          ? json["quantityIdentifier"]
+          : int.tryParse(json["quantityIdentifier"].toString()),
+      stock: json["stock"] is int
+          ? json["stock"]
+          : int.tryParse(json["stock"].toString()),
+      currentOwner: json["currentOwner"],
+      locationName: json["locationName"],
+      price: json["price"]?.toString(),
       photo: json["photo"],
     );
   }
 
-  /// **Nesneyi JSON'a Dönüştürme**
   Map<String, dynamic> toJson() {
     return {
-      "id":id,
-      "category": category, // 'catagory' yerine düzeltildi
-      "product": product,
+      "id": id,
+      "brand": brand,
+      "products": products,
+      "category": category,
       "description": description,
-      "price": price,
+      "quantityIdentifier": quantityIdentifier,
       "stock": stock,
+      "currentOwner": currentOwner,
+      "locationName": locationName,
+      "price": price,
       "photo": photo,
     };
   }

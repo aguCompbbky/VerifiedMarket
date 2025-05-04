@@ -68,7 +68,7 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage> {
               return Card(
                 margin: const EdgeInsets.all(10),
                 child: ListTile(
-                  title: Text(product.product ?? "Belirsiz"),
+                  title: Text(product.products ?? "Belirsiz"),
                   subtitle: Text(product.price != null ? "${product.price} TL" : ""),
                   leading: product.photo != null
                       ? Image.network(product.photo!, width: 50, height: 50, fit: BoxFit.cover)

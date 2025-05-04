@@ -267,7 +267,7 @@ class _MarketAppState extends State<MarketApp> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              product.product ?? "Ürün Adı Yok",
+                              product.products ?? "Ürün Adı Yok",
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -362,7 +362,7 @@ class _MarketAppState extends State<MarketApp> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Select Quantity for ${product.product}'),
+          title: Text('Select Quantity for ${product.products}'),
           content: StatefulBuilder(
             builder: (context, setState) {
               return Column(
@@ -412,7 +412,7 @@ class _MarketAppState extends State<MarketApp> {
     ).then((selectedQuantity) {
       if (selectedQuantity != null) {
         // Seçilen miktarı işleme
-        print('Selected quantity for ${product.product}: $selectedQuantity');
+        print('Selected quantity for ${product.products}: $selectedQuantity');
       }
     });
   }

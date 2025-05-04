@@ -63,7 +63,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    widget.product.product ?? "Ürün İsmi",
+                    widget.product.products ?? "Ürün İsmi",
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.normal,
