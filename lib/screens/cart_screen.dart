@@ -124,7 +124,7 @@ class _CartPageState extends State<CartPage> {
                         errorBuilder:
                             (_, __, ___) => Icon(Icons.image_not_supported),
                       ),
-                      title: Text(item.product.products ?? "Ürün"),
+                      title: Text(item.product.product ?? "Ürün"),
                       subtitle: Text(
                         "${item.product.price ?? "0"} x ${item.quantity}",
                       ),

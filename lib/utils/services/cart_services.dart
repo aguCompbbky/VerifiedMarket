@@ -103,7 +103,7 @@ class CartService {
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         "email": email,
-        "product": product.products,
+        "product": product.product,
         "price": product.price,
       }),
     );
