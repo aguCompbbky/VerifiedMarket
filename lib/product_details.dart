@@ -1,7 +1,11 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:foodapp/utils/models/address.dart';
 import 'package:foodapp/utils/models/products.dart';
 import 'package:foodapp/utils/models/supplyStep.dart';
+import 'package:foodapp/utils/services/api_service.dart';
 import 'package:foodapp/utils/services/cart_services.dart';
+import 'package:http/http.dart' as http;
 
 class ProductDetailsPage extends StatefulWidget {
   final Product product;
@@ -12,14 +16,57 @@ class ProductDetailsPage extends StatefulWidget {
 }
 
 class _ProductDetailsPageState extends State<ProductDetailsPage> {
+  List<SupplyStep> _supplySteps = [];
+  List<Address> _addresses = [];
+  bool _isLoadingSteps = true;
+  bool _isLoadingAddresses = true;
+  ProductApi api = ProductApi();
+
   @override
+  void initState() {
+    super.initState();
+    loadSupplySteps();
+    loadAddresses();
+  }
+
+  Future<void> loadSupplySteps() async {
+    try {
+      List<SupplyStep> steps = await api.fetchSupplyStep(
+        widget.product.id ?? -1,
+      ); // product id ile çağır
+      setState(() {
+        _supplySteps = steps;
+        _isLoadingSteps = false;
+      });
+    } catch (e) {
+      print("Hata: $e");
+      setState(() {
+        _isLoadingSteps = false;
+      });
+    }
+  }
+
+  Future<void> loadAddresses() async {
+    try {
+      List<Address> addresses = await api.fetchAddresses();
+
+      setState(() {
+        _addresses = addresses;
+        _isLoadingAddresses = false;
+      });
+    } catch (e) {
+      print("Hata: $e");
+      setState(() {
+        _isLoadingAddresses = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("")),
       backgroundColor: Colors.white,
-
-      // Sepete Ekle butonunu sabitle
       bottomNavigationBar: Container(
         padding: EdgeInsets.all(16),
         child: ElevatedButton(
@@ -43,11 +90,9 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           ),
         ),
       ),
-
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Ürün görseli ve temel bilgiler
             Container(
               padding: EdgeInsets.all(16),
               child: Column(
@@ -64,10 +109,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                   ),
                   Text(
                     widget.product.product ?? "Ürün İsmi",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.normal,
-                    ),
+                    style: TextStyle(fontSize: 18),
                   ),
                   SizedBox(height: 6),
                   Text(
@@ -78,18 +120,9 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
               ),
             ),
             Divider(),
-
-            // Kategori
-            buildInfoBlock("Katagori", "${widget.product.category}"),
-            // Stok
-            buildInfoBlock(
-              "Ürün Stok Durumu",
-              "${widget.product.stock}",
-            ), // ! quantityIdentifier ekleyecez.
-            // Açıklama
+            buildInfoBlock("Kategori", "${widget.product.category}"),
+            buildInfoBlock("Ürün Stok Durumu", "${widget.product.stock}"),
             buildInfoBlock("Ürün Açıklaması", "${widget.product.description}"),
-
-            // Tedarik Süreci
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -100,7 +133,9 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 12),
-                  buildSupplyChain(supplySteps),
+                  _isLoadingSteps
+                      ? Center(child: CircularProgressIndicator())
+                      : buildSupplyChain(_supplySteps, _addresses),
                 ],
               ),
             ),
@@ -136,24 +171,35 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     );
   }
 
-  Widget buildSupplyChain(List<SupplyStep> steps) {
+  Widget buildSupplyChain(List<SupplyStep> steps, List<Address> addresses) {
+    if (steps.isEmpty) {
+      return Text("Tedarik süreci bilgisi bulunamadı.");
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children:
           steps.map((step) {
+            // toAddress ile ownerAddress karşılaştır
+            final matchedAddress = addresses.firstWhere(
+              (addr) => addr.ownerAddress == step.toAddress,
+              orElse: () => Address(status: -1), // eşleşmezse bilinmeyen durum
+            );
+
+            // Status'a göre renk ve metin belirle
             Color statusColor;
             String statusText;
 
-            switch (step.status) {
-              case "helal":
+            switch (matchedAddress.status) {
+              case 2:
                 statusColor = Colors.green;
                 statusText = "Helal";
                 break;
-              case "kontrol_edilmedi":
+              case 1:
                 statusColor = Colors.orange;
                 statusText = "Kontrol Edilmedi";
                 break;
-              case "gecemedi":
+              case 0:
                 statusColor = Colors.red;
                 statusText = "Geçemedi";
                 break;
@@ -167,12 +213,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
               children: [
                 Column(
                   children: [
-                    Icon(
-                      step.isCurrent
-                          ? Icons.location_on
-                          : Icons.radio_button_checked,
-                      color: step.isCurrent ? Colors.green : Colors.grey,
-                    ),
+                    Icon(Icons.location_on, color: Colors.green),
                     if (step != steps.last)
                       Container(height: 40, width: 2, color: Colors.grey),
                   ],
@@ -190,7 +231,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          step.locationName,
+                          step.name ?? "Konum Bilgisi",
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
@@ -224,23 +265,4 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           }).toList(),
     );
   }
-
-  List<SupplyStep> supplySteps = [
-    SupplyStep(locationName: "Çiftlik", status: "helal", isCurrent: false),
-    SupplyStep(
-      locationName: "Üretim Tesisi",
-      status: "kontrol_edilmedi",
-      isCurrent: false,
-    ),
-    SupplyStep(
-      locationName: "Depo",
-      status: "helal",
-      isCurrent: true,
-    ), // Şu an buradaysa
-    SupplyStep(
-      locationName: "Market Rafı",
-      status: "kontrol_edilmedi",
-      isCurrent: false,
-    ),
-  ];
 }
