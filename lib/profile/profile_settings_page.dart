@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../utils/services/connection.dart';
+import '../profile/update_strategy.dart';
 
 class ProfileSettingsPageWidget extends StatefulWidget {
   @override
@@ -41,26 +42,28 @@ class _ProfileSettingsPageWidgetState extends State<ProfileSettingsPageWidget> {
   }
 
   Future<void> _updateField(String field) async {
+    late UpdateStrategy strategy;
     String value;
+
     switch (field) {
       case "email":
+        strategy = EmailUpdateStrategy();
         value = emailC.text;
         break;
       case "username":
+        strategy = UsernameUpdateStrategy();
         value = usernameC.text;
         break;
       case "password":
+        strategy = PasswordUpdateStrategy();
         value = passwordC.text;
         break;
       default:
         return;
     }
 
-    final success = await Connection.updateUserField(
-      loggedInEmail,
-      field,
-      value,
-    );
+    final success = await strategy.update(loggedInEmail, value);
+
     if (success) {
       ScaffoldMessenger.of(
         context,
@@ -68,16 +71,16 @@ class _ProfileSettingsPageWidgetState extends State<ProfileSettingsPageWidget> {
       setState(() {
         if (field == "email") {
           isEditingEmail = false;
-          loggedInEmail = emailC.text; // LOKAL değişken güncelleniyor
-          Connection.loggedInEmail =
-              emailC.text; // GLOBAL değişkeni de GÜNCELLE!
+          loggedInEmail = emailC.text;
+          Connection.loggedInEmail = emailC.text;
         }
         if (field == "username") {
           isEditingUsername = false;
           Connection.loggedInUsername = usernameC.text;
         }
-
-        if (field == "password") isEditingPassword = false;
+        if (field == "password") {
+          isEditingPassword = false;
+        }
       });
     } else {
       ScaffoldMessenger.of(

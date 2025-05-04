@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:foodapp/auth/login_page.dart';
 import 'package:foodapp/product_details.dart';
-
-import 'package:foodapp/profile_settings_page.dart';
-
+import 'package:foodapp/profile/profile_settings_page.dart';
 import 'package:foodapp/utils/models/products.dart';
 import 'package:foodapp/utils/services/api_service.dart';
 import 'cart_screen.dart';
