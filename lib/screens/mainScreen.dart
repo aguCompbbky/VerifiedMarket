@@ -261,7 +261,7 @@ class _MarketAppState extends State<MarketApp> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  "${product.price ?? 0}",
+                                  "${product.price ?? 0} TL",
                                   style: const TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,
@@ -277,10 +277,6 @@ class _MarketAppState extends State<MarketApp> {
                                   icon: const Icon(Icons.shopping_cart),
                                 ),
                               ],
-                            ),
-                            Text(
-                              "Available: " + product.stock.toString(),
-                              style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                           ],
                         ),
