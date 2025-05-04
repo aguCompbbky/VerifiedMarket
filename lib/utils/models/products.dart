@@ -8,24 +8,24 @@ class Product {
   final String? locationName;
   final String? price;
   final int? stock;
-  final String? photo;
   final String? currentOwner;
+
+  final String? photo;
 
   Product({
     this.id,
     this.brand,
-    this.category,
     this.product,
+    this.category,
     this.description,
     this.quantityIdentifier,
     this.locationName,
     this.price,
     this.stock,
-    this.photo,
     this.currentOwner,
+    this.photo,
   });
 
-  /// **JSON'dan Nesneye Dönüştürme (Factory Constructor)**
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
       id: json["id"],
@@ -47,17 +47,19 @@ class Product {
     );
   }
 
-  /// **Nesneyi JSON'a Dönüştürme**
   Map<String, dynamic> toJson() {
     return {
       "id": id,
-      "category": category, // 'catagory' yerine düzeltildi
+      "brand": brand,
       "products": product,
+      "category": category,
       "description": description,
-      "price": price,
+      "quantityIdentifier": quantityIdentifier,
       "stock": stock,
-      "photo": photo,
       "currentOwner": currentOwner,
+      "locationName": locationName,
+      "price": price,
+      "photo": photo,
     };
   }
 }

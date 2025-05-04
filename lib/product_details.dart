@@ -109,7 +109,10 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                   ),
                   Text(
                     widget.product.product ?? "Ürün İsmi",
-                    style: TextStyle(fontSize: 18),
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.normal,
+                    ),
                   ),
                   SizedBox(height: 6),
                   Text(

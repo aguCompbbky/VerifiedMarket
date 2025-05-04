@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:core';
+
 import 'package:foodapp/utils/constants/constants.dart';
 import 'package:foodapp/utils/models/address.dart';
 import 'package:foodapp/utils/models/products.dart';
@@ -72,14 +74,13 @@ class ProductApi {
 
   // Kategoriye göre ürünleri çeken fonksiyon
   Future<List<Product>> fetchProductByCategory(String category) async {
-    final url = Uri.parse(baseUrlProduct); // Base URL ile veriyi çekiyoruz
+    final url = Uri.parse(baseUrlProduct);
 
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
 
-        // Kategoriyi filtreleyerek sadece o kategoriye ait ürünleri döndür
         List<Product> filteredProducts =
             data
                 .where((item) => item['category'] == category)
@@ -92,6 +93,23 @@ class ProductApi {
       }
     } catch (e) {
       throw Exception("Error :  $e");
+    }
+  }
+
+  // 🆕 Yeni: Tüm kategorileri çeken fonksiyon
+  Future<List<String>> fetchCategories() async {
+    final url = Uri.parse("http://agumobile.site/get_categories.php");
+
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        return List<String>.from(data);
+      } else {
+        throw Exception("Failed to load categories");
+      }
+    } catch (e) {
+      throw Exception("Error fetching categories: $e");
     }
   }
 }

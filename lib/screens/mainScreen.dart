@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:foodapp/auth/login_page.dart';
 import 'package:foodapp/product_details.dart';
-
-import 'package:foodapp/profile_settings_page.dart';
-
+import 'package:foodapp/profile/profile_settings_page.dart';
 import 'package:foodapp/utils/models/products.dart';
 import 'package:foodapp/utils/services/api_service.dart';
 import 'cart_screen.dart';
@@ -25,10 +23,29 @@ class _MarketAppState extends State<MarketApp> {
   String _selectedCategory = 'None'; // Başlangıçta kategori seçilmemiş
   bool _isFoodExpanded = true; // Alt kategori listesi gösterilsin mi?
 
+  List<String> _categories = [];
+  bool _isLoadingCategories = true;
+
   @override
   void initState() {
     super.initState();
-    products = api.fetchProduct(); // Başlangıçta tüm ürünleri al
+    products = api.fetchProduct();
+    _loadCategories(); // kategorileri çek
+  }
+
+  void _loadCategories() async {
+    try {
+      final data = await api.fetchCategories();
+      setState(() {
+        _categories = data;
+        _isLoadingCategories = false;
+      });
+    } catch (e) {
+      print("Kategori yüklenemedi: $e");
+      setState(() {
+        _isLoadingCategories = false;
+      });
+    }
   }
 
   void _selectCategory(String category) {
@@ -52,6 +69,7 @@ class _MarketAppState extends State<MarketApp> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
+
         title: const Text(
           "Market Uygulaması",
           style: TextStyle(color: Colors.black),
@@ -71,7 +89,10 @@ class _MarketAppState extends State<MarketApp> {
               } else if (value == 'logout') {
                 Navigator.pushReplacement(
                   context,
+
                   MaterialPageRoute(builder: (context) => LoginPage()),
+
+                  //MaterialPageRoute(builder: (context) => LoginPage()),
                 );
               }
             },
@@ -97,78 +118,33 @@ class _MarketAppState extends State<MarketApp> {
             DrawerHeader(
               decoration: BoxDecoration(color: Colors.blue),
               child: Text(
-                'Menu',
+                'Kategoriler',
                 style: TextStyle(color: Colors.white, fontSize: 24),
               ),
             ),
-            // Foods butonunun sağında bir ok simgesi olacak
             ListTile(
-              title: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Foods'),
-                  IconButton(
-                    icon: Icon(
-                      _isFoodExpanded
-                          ? Icons.arrow_drop_up
-                          : Icons.arrow_drop_down,
-                      color: Colors.black,
-                    ),
-                    onPressed:
-                        _toggleFoodExpansion, // Alt kategorileri göster/gizle
-                  ),
-                ],
-              ),
+              title: Text('Tüm Ürünler'),
               onTap: () {
-                _toggleFoodExpansion(); // Foods sekmesine tıklandığında alt kategorileri göster
+                setState(() {
+                  _selectedCategory = 'None';
+                  products = api.fetchProduct();
+                });
+                Navigator.pop(context);
               },
             ),
-            // Alt kategori seçenekleri
-            if (_isFoodExpanded)
-              Column(
-                children: [
-                  ListTile(
-                    title: Text('Fruits'),
-                    onTap: () {
-                      _selectCategory('Fruits'); // Fruits kategorisini seç
-                      Navigator.pop(context); // Drawer'ı kapat
-                    },
-                  ),
-                  ListTile(
-                    title: Text('Vegetables'),
-                    onTap: () {
-                      _selectCategory(
-                        'Vegetables',
-                      ); // Vegetables kategorisini seç
-                      Navigator.pop(context); // Drawer'ı kapat
-                    },
-                  ),
-                  ListTile(
-                    title: Text('Meat and Fish'),
-                    onTap: () {
-                      _selectCategory(
-                        'Meat and Fish',
-                      ); // Meat and Fish kategorisini seç
-                      Navigator.pop(context); // Drawer'ı kapat
-                    },
-                  ),
-                  ListTile(
-                    title: Text('Dairy Products'),
-                    onTap: () {
-                      _selectCategory(
-                        'Dairy Products',
-                      ); // Dairy Products kategorisini seç
-                      Navigator.pop(context); // Drawer'ı kapat
-                    },
-                  ),
-                  ListTile(
-                    title: Text('Nuts'),
-                    onTap: () {
-                      _selectCategory('Nuts'); // Nuts kategorisini seç
-                      Navigator.pop(context); // Drawer'ı kapat
-                    },
-                  ),
-                ],
+            if (_isLoadingCategories)
+              Center(child: CircularProgressIndicator())
+            else
+              ..._categories.map(
+                (category) => ListTile(
+                  title: Text(category),
+                  onTap: () {
+                    _selectCategory(
+                      category,
+                    ); // burada direkt Türkçe kategori ismini gönderiyoruz
+                    Navigator.pop(context);
+                  },
+                ),
               ),
           ],
         ),
@@ -293,6 +269,9 @@ class _MarketAppState extends State<MarketApp> {
                                 ),
                                 IconButton(
                                   onPressed: () {
+                                    _showQuantityDialog(product);
+                                    // CartService.addToCart(product);
+
                                     CartService.addToCart(product);
                                   },
                                   icon: const Icon(Icons.shopping_cart),
@@ -349,4 +328,66 @@ class _MarketAppState extends State<MarketApp> {
       );
     }
   }
+
+  void _showQuantityDialog(Product product) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Select Quantity for ${product.product}'),
+          content: StatefulBuilder(
+            builder: (context, setState) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Artı butonu
+                  IconButton(
+                    icon: Icon(Icons.add),
+                    onPressed: () {
+                      setState(() {
+                        if (selectedQuantity < product.stock!) {
+                          selectedQuantity++; // Miktarı arttır
+                        }
+                      });
+                    },
+                  ),
+                  // Seçilen miktar
+                  Text('$selectedQuantity', style: TextStyle(fontSize: 30)),
+                  // Eksi butonu
+                  IconButton(
+                    icon: Icon(Icons.remove),
+                    onPressed: () {
+                      setState(() {
+                        if (selectedQuantity > 1) {
+                          selectedQuantity--; // Miktarı azalt
+                        }
+                      });
+                    },
+                  ),
+                ],
+              );
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(
+                  context,
+                ).pop(selectedQuantity); // Seçilen miktarı geri döndür
+                CartService.addToCart(product);
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    ).then((selectedQuantity) {
+      if (selectedQuantity != null) {
+        // Seçilen miktarı işleme
+        print('Selected quantity for ${product.product}: $selectedQuantity');
+      }
+    });
+  }
 }
+
+int selectedQuantity = 1;
