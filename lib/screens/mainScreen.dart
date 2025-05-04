@@ -23,11 +23,32 @@ class _MarketAppState extends State<MarketApp> {
   String _selectedCategory = 'None'; // Başlangıçta kategori seçilmemiş
   bool _isFoodExpanded = true; // Alt kategori listesi gösterilsin mi?
 
-  @override
-  void initState() {
-    super.initState();
-    products = api.fetchProduct(); // Başlangıçta tüm ürünleri al
+
+  List<String> _categories = [];
+  bool _isLoadingCategories = true;
+
+@override
+void initState() {
+  super.initState();
+  products = api.fetchProduct();
+  _loadCategories(); // kategorileri çek
+}
+
+void _loadCategories() async {
+  try {
+    final data = await api.fetchCategories();
+    setState(() {
+      _categories = data;
+      _isLoadingCategories = false;
+    });
+  } catch (e) {
+    print("Kategori yüklenemedi: $e");
+    setState(() {
+      _isLoadingCategories = false;
+    });
   }
+}
+
 
   void _selectCategory(String category) {
     setState(() {
@@ -92,89 +113,42 @@ class _MarketAppState extends State<MarketApp> {
         ],
       ),
 
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              decoration: BoxDecoration(color: Colors.blue),
-              child: Text(
-                'Menu',
-                style: TextStyle(color: Colors.white, fontSize: 24),
-              ),
-            ),
-            // Foods butonunun sağında bir ok simgesi olacak
-            ListTile(
-              title: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Foods'),
-                  IconButton(
-                    icon: Icon(
-                      _isFoodExpanded
-                          ? Icons.arrow_drop_up
-                          : Icons.arrow_drop_down,
-                      color: Colors.black,
-                    ),
-                    onPressed:
-                        _toggleFoodExpansion, // Alt kategorileri göster/gizle
-                  ),
-                ],
-              ),
-              onTap: () {
-                _toggleFoodExpansion(); // Foods sekmesine tıklandığında alt kategorileri göster
-              },
-            ),
-            // Alt kategori seçenekleri
-            if (_isFoodExpanded)
-              Column(
-                children: [
-                  ListTile(
-                    title: Text('Fruits'),
-                    onTap: () {
-                      _selectCategory('Fruits'); // Fruits kategorisini seç
-                      Navigator.pop(context); // Drawer'ı kapat
-                    },
-                  ),
-                  ListTile(
-                    title: Text('Vegetables'),
-                    onTap: () {
-                      _selectCategory(
-                        'Vegetables',
-                      ); // Vegetables kategorisini seç
-                      Navigator.pop(context); // Drawer'ı kapat
-                    },
-                  ),
-                  ListTile(
-                    title: Text('Meat and Fish'),
-                    onTap: () {
-                      _selectCategory(
-                        'Meat and Fish',
-                      ); // Meat and Fish kategorisini seç
-                      Navigator.pop(context); // Drawer'ı kapat
-                    },
-                  ),
-                  ListTile(
-                    title: Text('Dairy Products'),
-                    onTap: () {
-                      _selectCategory(
-                        'Dairy Products',
-                      ); // Dairy Products kategorisini seç
-                      Navigator.pop(context); // Drawer'ı kapat
-                    },
-                  ),
-                  ListTile(
-                    title: Text('Nuts'),
-                    onTap: () {
-                      _selectCategory('Nuts'); // Nuts kategorisini seç
-                      Navigator.pop(context); // Drawer'ı kapat
-                    },
-                  ),
-                ],
-              ),
-          ],
+ drawer: Drawer(
+  child: ListView(
+    padding: EdgeInsets.zero,
+    children: <Widget>[
+      DrawerHeader(
+        decoration: BoxDecoration(color: Colors.blue),
+        child: Text(
+          'Kategoriler',
+          style: TextStyle(color: Colors.white, fontSize: 24),
         ),
       ),
+      ListTile(
+        title: Text('Tüm Ürünler'),
+        onTap: () {
+          setState(() {
+            _selectedCategory = 'None';
+            products = api.fetchProduct();
+          });
+          Navigator.pop(context);
+        },
+      ),
+      if (_isLoadingCategories)
+        Center(child: CircularProgressIndicator())
+      else
+        ..._categories.map((category) => ListTile(
+              title: Text(category),
+              onTap: () {
+                _selectCategory(category); // burada direkt Türkçe kategori ismini gönderiyoruz
+                Navigator.pop(context);
+              },
+            )),
+    ],
+  ),
+),
+
+
 
       body: FutureBuilder<List<Product>>(
         future: products,
