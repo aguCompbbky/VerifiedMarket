@@ -26,16 +26,24 @@ class _CartPageState extends State<CartPage> {
   }
 
   void _purchaseItems() {
-    CartService.purchaseCart(cartItems.cast<Product>()).then((_) {
-      CartService.getCartItems().then((items) {
-        setState(() {
-          cartItems = items;
+    final filteredCartItems = cartItems.whereType<CartItem>().toList();
+
+    CartService.purchaseCart(filteredCartItems)
+        .then((_) {
+          CartService.getCartItems().then((items) {
+            setState(() {
+              cartItems = items;
+            });
+          });
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text("Satın alma tamamlandı ✅")));
+        })
+        .catchError((error) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text("Hata oluştu: $error")));
         });
-      });
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Satın alma tamamlandı ✅")));
-    });
   }
 
   @override
@@ -127,12 +135,7 @@ class _CartPageState extends State<CartPage> {
                           IconButton(
                             icon: Icon(Icons.add),
                             onPressed: () async {
-                              setState(() {
-                                selectedQuantity++; // Global selectedQuantity'yi artır
-                              });
-                              await CartService.addToCart(
-                                item.product,
-                              ); // Sepete ekle
+                              await CartService.addToCart(item.product);
                               final updatedCart =
                                   await CartService.getCartItems();
                               setState(() {
@@ -140,34 +143,28 @@ class _CartPageState extends State<CartPage> {
                               });
                             },
                           ),
+
                           // Eksi butonu
                           IconButton(
                             icon: Icon(Icons.remove),
                             onPressed: () async {
                               if (item.quantity > 1) {
-                                setState(() {
-                                  selectedQuantity--; // Global selectedQuantity'yi azalt
-                                });
                                 await CartService.removeFromCart(
                                   item.product.id ?? 0,
-                                ); // Sepetten sil
-                                final updatedCart =
-                                    await CartService.getCartItems();
-                                setState(() {
-                                  cartItems = updatedCart;
-                                });
+                                );
                               } else {
                                 await CartService.removeFromCart(
                                   item.product.id ?? 0,
-                                ); // Ürünü tamamen sil
-                                final updatedCart =
-                                    await CartService.getCartItems();
-                                setState(() {
-                                  cartItems = updatedCart;
-                                });
+                                );
                               }
+                              final updatedCart =
+                                  await CartService.getCartItems();
+                              setState(() {
+                                cartItems = updatedCart;
+                              });
                             },
                           ),
+
                           // Silme butonu
                           IconButton(
                             icon: Icon(Icons.cancel, color: Colors.red),
