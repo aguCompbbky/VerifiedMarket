@@ -270,10 +270,11 @@ class _MarketAppState extends State<MarketApp> {
                                 ),
                                 IconButton(
                                   onPressed: () {
-                                    _showQuantityDialog(product);
+                                    //_showQuantityDialog(product);
                                     // CartService.addToCart(product);
 
                                     CartService.addToCart(product);
+                                    CartService.showAddToCartMessage(context);
                                   },
                                   icon: const Icon(Icons.shopping_cart),
                                 ),
@@ -326,11 +327,13 @@ class _MarketAppState extends State<MarketApp> {
       );
     }
     if (index == 2) {
-  Navigator.push(
-    context,
-    MaterialPageRoute(builder: (context) => WalletPage(userId: 1)), // userId'yi geçmeli ve uygun şekilde almanız gerekebilir
-  );
-}
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => WalletPage(userId: 1),
+        ), // userId'yi geçmeli ve uygun şekilde almanız gerekebilir
+      );
+    }
   }
 
   void _showQuantityDialog(Product product) {
