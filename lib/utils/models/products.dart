@@ -35,7 +35,7 @@ class Product {
       description: json["description"],
       quantityIdentifier:
           json["quantityIdentifier"] is int
-              ? json["stock"]
+              ? json["quantityIdentifier"]
               : int.tryParse(json["quantityIdentifier"].toString()),
       price: json["price"]?.toString(),
       stock:

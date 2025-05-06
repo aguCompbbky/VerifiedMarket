@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:foodapp/screens/purchase_history_screen.dart';
 import 'package:foodapp/utils/models/address.dart';
 import 'package:foodapp/utils/models/products.dart';
+import 'package:foodapp/utils/models/purchaseHistory.dart';
 import 'package:foodapp/utils/models/supplyStep.dart';
 import 'package:foodapp/utils/services/api_service.dart';
 import 'package:foodapp/utils/services/cart_services.dart';
@@ -18,8 +20,18 @@ class ProductDetailsPage extends StatefulWidget {
 class _ProductDetailsPageState extends State<ProductDetailsPage> {
   List<SupplyStep> _supplySteps = [];
   List<Address> _addresses = [];
+  List<Purchasehistory> _purchaseHistory = [];
+  var quantityIdentifierName = <String>[
+    "Kilogram",
+    "Gram",
+    "Litre",
+    "Militre",
+    "Adet",
+  ];
+
   bool _isLoadingSteps = true;
   bool _isLoadingAddresses = true;
+  bool _isLoadingPurchaseHistory = true;
   ProductApi api = ProductApi();
 
   @override
@@ -27,6 +39,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     super.initState();
     loadSupplySteps();
     loadAddresses();
+    loadPurchaseHistory();
   }
 
   Future<void> loadSupplySteps() async {
@@ -58,6 +71,23 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       print("Hata: $e");
       setState(() {
         _isLoadingAddresses = false;
+      });
+    }
+  }
+
+  Future<void> loadPurchaseHistory() async {
+    try {
+      List<Purchasehistory> purchaseHistory = await api.fetchPurchaseHistory(
+        widget.product.id ?? -1,
+      ); // product id ile çağır
+      setState(() {
+        _purchaseHistory = purchaseHistory;
+        _isLoadingPurchaseHistory = false;
+      });
+    } catch (e) {
+      print("Hata: $e");
+      setState(() {
+        _isLoadingPurchaseHistory = false;
       });
     }
   }
@@ -116,15 +146,21 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                   ),
                   SizedBox(height: 6),
                   Text(
-                    widget.product.price ?? "Fiyat bilgisi yok",
+                    "${widget.product.price} TL" ?? "Fiyat bilgisi yok",
                     style: TextStyle(fontSize: 18, color: Colors.green),
                   ),
                 ],
               ),
             ),
+
             Divider(),
+
             buildInfoBlock("Kategori", "${widget.product.category}"),
-            buildInfoBlock("Ürün Stok Durumu", "${widget.product.stock}"),
+            buildInfoBlock(
+              "Ürün Stok Durumu",
+              "${(widget.product.stock! - _purchaseHistory.length)} ${quantityIdentifierName[widget.product.quantityIdentifier!]}",
+            ),
+
             buildInfoBlock("Ürün Açıklaması", "${widget.product.description}"),
             Padding(
               padding: const EdgeInsets.all(16.0),

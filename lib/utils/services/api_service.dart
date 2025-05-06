@@ -4,6 +4,7 @@ import 'dart:core';
 import 'package:foodapp/utils/constants/constants.dart';
 import 'package:foodapp/utils/models/address.dart';
 import 'package:foodapp/utils/models/products.dart';
+import 'package:foodapp/utils/models/purchaseHistory.dart';
 import 'package:foodapp/utils/models/supplyStep.dart';
 import 'package:http/http.dart' as http;
 
@@ -110,6 +111,24 @@ class ProductApi {
       }
     } catch (e) {
       throw Exception("Error fetching categories: $e");
+    }
+  }
+
+  Future<List<Purchasehistory>> fetchPurchaseHistory(int productId) async {
+    final url = Uri.parse(
+      "$baseUrlPurchaseHistory?id=$productId",
+    ); // !constant'ı düzelt
+
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        return data.map((item) => Purchasehistory.fromJson(item)).toList();
+      } else {
+        throw Exception("Failed to load supply steps");
+      }
+    } catch (e) {
+      throw Exception("Error: $e");
     }
   }
 }

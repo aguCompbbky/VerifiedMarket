@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 
 class CartService {
   static const String _cartKey = 'cart';
-  static const String _purchaseKey = 'purchase_history';
+  static const String _purchaseKey = 'purchaseNewHistory';
 
   static Future<void> addToCart(Product product) async {
     final prefs = await SharedPreferences.getInstance();
@@ -102,9 +102,10 @@ class CartService {
       Uri.parse("${Connection.baseUrl}/record_purchase.php"),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
+        "productId": product.id,
         "email": email,
-        "product": product.product,
-        "price": product.price,
+        "productName": product.product,
+        "productPrice": product.price,
       }),
     );
 
