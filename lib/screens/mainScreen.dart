@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:foodapp/auth/login_page.dart';
 import 'package:foodapp/product_details.dart';
 import 'package:foodapp/profile/profile_settings_page.dart';
+import 'package:foodapp/screens/wallet_screen.dart';
 import 'package:foodapp/utils/models/products.dart';
 import 'package:foodapp/utils/services/api_service.dart';
 import 'cart_screen.dart';
@@ -300,6 +301,7 @@ class _MarketAppState extends State<MarketApp> {
             icon: Icon(Icons.shopping_cart),
             label: 'Sepet',
           ),
+          BottomNavigationBarItem(icon: Icon(Icons.wallet), label: 'Cüzdan'),
         ],
       ),
     );
@@ -323,6 +325,12 @@ class _MarketAppState extends State<MarketApp> {
         MaterialPageRoute(builder: (context) => CartPage()),
       );
     }
+    if (index == 2) {
+  Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => WalletPage(userId: 1)), // userId'yi geçmeli ve uygun şekilde almanız gerekebilir
+  );
+}
   }
 
   void _showQuantityDialog(Product product) {

@@ -1,59 +1,53 @@
 import 'dart:convert';
-import 'package:foodapp/screens/mainScreen.dart';
-import 'package:foodapp/utils/models/products.dart';
-import 'package:foodapp/utils/services/connection.dart';
-import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
+import 'package:foodapp/utils/services/connection.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'package:foodapp/utils/models/products.dart';  // Burada Product ve CartItem modellerini kullanıyoruz.
+import 'package:foodapp/utils/services/wallet_services.dart'; // Bakiyeyi kontrol etmek için
 
 class CartService {
-  static const String _cartKey = 'cart';
-  static const String _purchaseKey = 'purchase_history';
+  static const String _cartKey = 'cart';  // Sepet verilerini SharedPreferences'de saklamak için anahtar
+  static const String _purchaseKey = 'purchase_history';  // Satın alma geçmişini saklamak için anahtar
 
+  // Sepete ürün ekleme
   static Future<void> addToCart(Product product) async {
     final prefs = await SharedPreferences.getInstance();
-    List<CartItem> cart = await getCartItems();
+    List<CartItem> cart = await getCartItems();  // Mevcut sepete ürünleri alıyoruz
 
     bool exists = false;
     for (var item in cart) {
       if (item.product.id == product.id) {
-        item.quantity += 1; // miktarı 1 artır
+        item.quantity += 1; // Eğer ürün zaten sepette varsa, miktarını artır
         exists = true;
         break;
       }
     }
 
     if (!exists) {
-      cart.add(CartItem(product: product, quantity: 1));
+      cart.add(CartItem(product: product, quantity: 1));  // Ürün yoksa yeni bir item ekle
     }
 
     await prefs.setString(
       _cartKey,
-      jsonEncode(cart.map((e) => e.toJson()).toList()),
+      jsonEncode(cart.map((e) => e.toJson()).toList()),  // Sepeti SharedPreferences'e kaydet
     );
   }
 
+  // Sepetten ürün çıkarma
   static Future<void> removeFromCart(int productId) async {
     final prefs = await SharedPreferences.getInstance();
-    List<CartItem> cart = await getCartItems();
+    List<CartItem> cart = await getCartItems();  // Sepeti alıyoruz
 
-    for (var item in cart) {
-      if (item.product.id == productId) {
-        if (item.quantity > 1) {
-          item.quantity -= 1; // miktarı 1 azalt
-        } else {
-          cart.remove(item); // miktar 1 ise tamamen sil
-        }
-        break;
-      }
-    }
+    cart.removeWhere((item) => item.product.id == productId);  // Ürünü sepette bulup çıkarıyoruz
 
     await prefs.setString(
       _cartKey,
-      jsonEncode(cart.map((e) => e.toJson()).toList()),
+      jsonEncode(cart.map((e) => e.toJson()).toList()),  // Yeni sepeti kaydet
     );
   }
 
+  // Sepetteki tüm ürünleri alma
   static Future<List<CartItem>> getCartItems() async {
     final prefs = await SharedPreferences.getInstance();
     String? jsonString = prefs.getString(_cartKey);
@@ -61,10 +55,7 @@ class CartService {
     if (jsonString != null) {
       try {
         List<dynamic> decoded = jsonDecode(jsonString);
-
-        return decoded
-            .map((e) => CartItem.fromJson(e as Map<String, dynamic>))
-            .toList();
+        return decoded.map((e) => CartItem.fromJson(e as Map<String, dynamic>)).toList();
       } catch (e) {
         print("JSON çözümleme hatası: $e");
         return [];
@@ -73,30 +64,53 @@ class CartService {
     return [];
   }
 
+  // Sepeti temizleme
   static Future<void> clearCart() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_cartKey, jsonEncode([]));
+    await prefs.setString(_cartKey, jsonEncode([]));  // Sepeti boşalt
   }
 
-  static Future<void> purchaseCart(List<CartItem> cart) async {
-    final prefs = await SharedPreferences.getInstance();
-    final email = prefs.getString("loggedInEmail") ?? "";
+  // Sepet ürünlerini satın alma işlemi
+  Future<void> purchaseCart(List<CartItem> cart, BuildContext context) async {
+  final prefs = await SharedPreferences.getInstance();
+  final email = prefs.getString("loggedInEmail") ?? "";  // Kullanıcı e-posta bilgisi alınıyor
 
-    await prefs.setString(
-      _purchaseKey,
-      jsonEncode(cart.map((e) => e.toJson()).toList()),
-    );
+  // Sepet ürünlerinin toplam fiyatını hesapla
+  double totalPrice = cart.fold(0.0, (sum, item) {
+    double price = double.tryParse(item.product.price?.replaceAll(RegExp(r'[^\d.]'), '') ?? "0") ?? 0.0;
+    return sum + price * item.quantity; // Miktar ile fiyatı çarp
+  });
 
-    for (final item in cart) {
-      await recordPurchase(
-        item.product,
-        email,
-      ); // <- ürün doğru şekilde çekiliyor
-    }
-
-    await clearCart();
+  // Kullanıcı bakiyesini al
+  final userId = prefs.getInt("loggedInUserId");
+  if (userId == null) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Kullanıcı bilgisi bulunamadı.")));
+    return;
   }
 
+  // Bakiyeyi double türünde alıyoruz
+  double balance = (await WalletService.getBalance(userId)) as double; // Bakiyeyi al
+
+// Eğer yeterli bakiye varsa
+if (balance >= totalPrice) {
+  // Bakiyeyi güncelle
+  bool success = await WalletService.updateBalance(userId, (-totalPrice).toInt()); // Bakiyeyi int olarak azaltma
+ // Bakiyeyi azaltma
+
+  if (success) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Satın alma tamamlandı ✅")));
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Bakiye güncellenirken hata oluştu.")));
+  }
+} else {
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Yetersiz bakiye 💸")));
+}
+
+
+}
+
+
+  // Satın alma işlemi kaydetme
   static Future<void> recordPurchase(Product product, String email) async {
     final response = await http.post(
       Uri.parse("${Connection.baseUrl}/record_purchase.php"),
