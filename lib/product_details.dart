@@ -116,7 +116,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                   ),
                   SizedBox(height: 6),
                   Text(
-                    widget.product.price ?? "Fiyat bilgisi yok",
+                     "${widget.product.price} TL" ?? "Fiyat bilgisi yok" ,
                     style: TextStyle(fontSize: 18, color: Colors.green),
                   ),
                 ],

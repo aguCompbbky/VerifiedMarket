@@ -38,11 +38,6 @@ class _CartPageState extends State<CartPage> {
             item!.product.price?.replaceAll(RegExp(r'[^\d.]'), '') ?? "0",
           ) ??
           0.0;
-      double price =
-          double.tryParse(
-            item!.product.price?.replaceAll(RegExp(r'[^\d.]'), '') ?? "0",
-          ) ??
-          0.0;
       return sum + price * item!.quantity;
     });
 
@@ -81,8 +76,6 @@ class _CartPageState extends State<CartPage> {
             item!.product.price?.replaceAll(RegExp(r'[^\d.]'), '') ?? "0",
           ) ??
           0.0;
-          ) ??
-          0.0;
       return sum + price * item!.quantity;
     });
 
@@ -104,25 +97,7 @@ class _CartPageState extends State<CartPage> {
             tooltip: "Sepeti Temizle",
             onPressed: () async {
               final confirm = await showDialog<bool>(
-              final confirm = await showDialog<bool>(
                 context: context,
-                builder:
-                    (_) => AlertDialog(
-                      title: Text("Sepeti Temizle"),
-                      content: Text(
-                        "Tüm ürünleri sepetten silmek istediğine emin misin?",
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, false),
-                          child: Text("Vazgeç"),
-                        ),
-                        ElevatedButton(
-                          onPressed: () => Navigator.pop(context, true),
-                          child: Text("Temizle"),
-                        ),
-                      ],
-                    ),
                 builder:
                     (_) => AlertDialog(
                       title: Text("Sepeti Temizle"),
@@ -155,41 +130,6 @@ class _CartPageState extends State<CartPage> {
           ),
         ],
       ),
-      body:
-          cartItems.isEmpty
-              ? Center(child: Text("Sepetiniz boş 🛒"))
-              : ListView.builder(
-                itemCount: cartItems.length,
-                itemBuilder: (context, index) {
-                  final item = cartItems[index];
-                  return Card(
-                    margin: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    child: ListTile(
-                      leading: Image.network(
-                        item!.product.photo ?? "",
-                        width: 50,
-                        errorBuilder:
-                            (_, __, ___) => Icon(Icons.image_not_supported),
-                      ),
-                      title: Text(item.product.product ?? "Ürün"),
-                      subtitle: Text(
-                        "${item.product.price ?? "0"} x ${item.quantity}",
-                      ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          // Artı butonu
-                          IconButton(
-                            icon: Icon(Icons.add),
-                            onPressed: () async {
-                              await CartService.addToCart(item.product);
-                              final updatedCart =
-                                  await CartService.getCartItems();
-                              setState(() {
-                                cartItems = updatedCart;
-                              });
-                            },
-                          ),
       body:
           cartItems.isEmpty
               ? Center(child: Text("Sepetiniz boş 🛒"))
