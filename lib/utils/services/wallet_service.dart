@@ -26,7 +26,7 @@ class WalletService {
  Future<bool> updateBalance(int userId, double amount) async {
   try {
     final response = await http.post(
-      Uri.parse("http://your-api-url/wallet_update.php"),
+      Uri.parse("https://agumobile.site/wallet_update.php"),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'user_id': userId,

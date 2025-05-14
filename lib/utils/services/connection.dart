@@ -77,7 +77,7 @@ class Connection {
     final email = prefs.getString("loggedInEmail") ?? "";
 
     final response = await http.post(
-      Uri.parse("$baseUrl/get_purchase_history.php"),
+      Uri.parse("$baseUrl/get_purchaseNewHistory.php"),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({"email": email}),
     );

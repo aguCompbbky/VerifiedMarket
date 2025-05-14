@@ -89,10 +89,23 @@ class CartService {
   }
 
   // Bakiyeyi double türünde alıyoruz
-  double balance = (await WalletService.getBalance(userId)) as double; // Bakiyeyi al
+  double balance = (await WalletService.getBalance(userId)).toDouble(); // Bakiyeyi al
 
 // Eğer yeterli bakiye varsa
 if (balance >= totalPrice) {
+
+// satın alma geçmişine ekle
+  for (var item in cart) {
+  await recordPurchase(item.product, email);
+}
+
+  //stock güncelle 
+ for (var item in cart) {
+  print("Stok güncelleme isteği gönderiliyor: productId=${item.product.id}, quantity=${item.quantity}");
+  bool stockUpdated = await updateProductStock(item.product.id ?? 0, item.quantity);
+  print("Stok güncelleme sonucu: $stockUpdated");
+}
+
   // Bakiyeyi güncelle
   bool success = await WalletService.updateBalance(userId, (-totalPrice).toInt()); // Bakiyeyi int olarak azaltma
  // Bakiyeyi azaltma
@@ -109,24 +122,68 @@ if (balance >= totalPrice) {
 
 }
 
-
-  // Satın alma işlemi kaydetme
-  static Future<void> recordPurchase(Product product, String email) async {
+Future<bool> updateProductStock(int productId, int quantityPurchased) async {
+  try {
     final response = await http.post(
-      Uri.parse("${Connection.baseUrl}/record_purchase.php"),
+      Uri.parse("${Connection.baseUrl}/update_stock.php"),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
-        "email": email,
-        "product": product.product,
-        "price": product.price,
+        'product_id': productId,
+        'quantity_purchased': quantityPurchased,
       }),
     );
 
     final data = jsonDecode(response.body);
-    if (!data['success']) {
-      print("Satın alım SQL'e kaydedilemedi: ${data['message']}");
-    }
+    return data['success'] == true;
+  } catch (e) {
+    print("Stok güncellenirken hata: $e");
+    return false;
   }
+}
+
+
+  // Satın alma işlemi kaydetme
+static Future<void> recordPurchase(Product product, String email) async {
+  final response = await http.post(
+    Uri.parse("${Connection.baseUrl}/record_purchase.php"),
+    headers: {'Content-Type': 'application/json'},
+    body: jsonEncode({
+      "email": email,
+      "productId": product.id,
+      "productName": product.product,
+      "productPrice": product.price,
+    }),
+  );
+
+  final data = jsonDecode(response.body);
+  print("recordPurchase response: $data");
+
+  if (data['success'] != true) {
+    print("Satın alım SQL'e kaydedilemedi: ${data['message']}");
+  }
+}
+
+
+    static Future<void> decreaseQuantity(int productId) async {
+    final prefs = await SharedPreferences.getInstance();
+    List<CartItem> cart = await getCartItems();
+
+    for (var item in cart) {
+      if (item.product.id == productId) {
+        if (item.quantity > 1) {
+          item.quantity -= 1;
+        }
+        break;
+      }
+    }
+
+    await prefs.setString(
+      _cartKey,
+      jsonEncode(cart.map((e) => e.toJson()).toList()),
+    );
+  }
+
+
 }
 
 class CartItem {

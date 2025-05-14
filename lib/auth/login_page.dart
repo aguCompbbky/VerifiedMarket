@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:foodapp/auth/register_page.dart';
 import 'package:foodapp/screens/mainScreen.dart';
+import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/services/connection.dart';
 
@@ -26,18 +29,26 @@ class _LoginPageState extends State<LoginPage> {
     String password = passC.text.trim();
 
     if (email.isEmpty || password.isEmpty) {
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(content: Text("Boş alan bırakmayın.")),
-      );
+      _showDialog("Boş alan bırakmayın.");
       return;
     }
 
     String message = await Connection.login(email, password);
     if (message == "Giriş başarılı.") {
-      Connection.loggedInEmail = emailC.text;
+      Connection.loggedInEmail = email;
+
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString("loggedInEmail", emailC.text);
+      await prefs.setString("loggedInEmail", email);
+
+      // UserId'yi backend'den al ve SharedPreferences'a kaydet
+      int? userId = await getUserIdByEmail(email);
+      if (userId != null) {
+        await prefs.setInt("loggedInUserId", userId);
+        print("UserId kaydedildi: $userId");
+      } else {
+        print("UserId alınamadı.");
+      }
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => MarketApp()),
@@ -50,6 +61,28 @@ class _LoginPageState extends State<LoginPage> {
     print("Password: $password");
   }
 
+  // Email ile userId almak için fonksiyon
+  Future<int?> getUserIdByEmail(String email) async {
+    try {
+      final response = await http.post(
+        Uri.parse('https://agumobile.site/get_user_id.php'),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"email": email}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data["success"] == true && data["user_id"] != null) {
+          return int.tryParse(data["user_id"].toString());
+        }
+      }
+      return null;
+    } catch (e) {
+      print("UserId alma hatası: $e");
+      return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,7 +90,6 @@ class _LoginPageState extends State<LoginPage> {
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
-
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -98,7 +130,6 @@ class _LoginPageState extends State<LoginPage> {
                 onTap: () {
                   _handleLogin();
                 },
-
                 child: Container(
                   padding: EdgeInsets.symmetric(vertical: 15, horizontal: 160),
                   decoration: BoxDecoration(
@@ -115,7 +146,6 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
               ),
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
