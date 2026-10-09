@@ -1,122 +1,169 @@
 # VerifiedMarket
 
-VerifiedMarket is a Flutter-based marketplace application for browsing and purchasing products from a digital storefront. The app includes user authentication, category-based product browsing, cart management, wallet functionality, and purchase history, with Firebase support for app services.
+VerifiedMarket is a Flutter-based halal marketplace application that leverages blockchain technology to track product supply chains and assign halal certification tags. The app automates the verification and transparency of halal products from source to consumer, providing a trustworthy e-commerce experience with immutable supply chain records.
 
 ## Overview
 
-This repository contains a cross-platform Flutter app designed to provide a mobile shopping experience similar to a grocery or marketplace application. It is structured around a central market dashboard, product detail views, and user account screens, with services for authentication and product data fetching.
+VerifiedMarket is an innovative e-commerce automation platform designed to empower halal consumers by providing transparent, blockchain-verified product supply chain information. Users can browse products, verify their halal status through blockchain records, manage purchases, and track order history—all within a secure, transparent ecosystem.
 
 ## Key Features
 
-- User login and registration flow
-- Product catalog with category filtering
-- Product detail view
-- Shopping cart functionality
-- Wallet screen and payment-related tracking
-- Purchase history screen
-- Profile settings
-- Firebase initialization and integration
-- Responsive Material Design UI
+- **Blockchain Supply Chain Tracking**: Monitor product origin, processing, and distribution through an immutable blockchain ledger
+- **Halal Certification Tags**: Automated assignment and verification of halal status based on supply chain data
+- **User Authentication**: Secure login and registration system
+- **Product Catalog**: Browse products with halal certification details and supply chain information
+- **Category Filtering**: Filter products by category for easier navigation
+- **Product Detail View**: Access detailed product information, including supply chain history and halal certification status
+- **Shopping Cart**: Add and manage products before checkout
+- **Wallet Management**: Handle digital payments and wallet balances
+- **Purchase History**: Track completed orders and verify halal status of purchased items
+- **Profile Settings**: Manage user account details and preferences
+- **Firebase Integration**: Real-time data synchronization and secure authentication
+- **Responsive Material Design**: Optimized user interface across all devices
 
 ## Tech Stack
 
-- Flutter
-- Dart
-- Firebase Auth
-- Firebase Firestore / Storage / Messaging
-- SharedPreferences
-- HTTP client for backend interaction
+- **Frontend**: Flutter, Dart
+- **Backend Services**: Firebase (Auth, Firestore, Storage, Messaging)
+- **Blockchain Integration**: Blockchain-based supply chain verification
+- **Local Storage**: SharedPreferences for session management
+- **API Communication**: HTTP client for backend and blockchain API interaction
+- **UI Framework**: Material Design
 
 ## Project Structure
 
 ```text
 VerifiedMarket/
-├── android/
-├── ios/
+├── android/                 # Android platform code
+├── ios/                     # iOS platform code
 ├── lib/
-│   ├── auth/
-│   ├── profile/
-│   ├── screens/
-│   ├── utils/
-│   ├── main.dart
-│   ├── navigator.dart
-│   ├── product_details.dart
-│   └── ...
-├── linux/
-├── macos/
-├── web/
-├── windows/
-├── .metadata
-├── .gitignore
+│   ├── auth/               # Authentication (login, register)
+│   ├── profile/            # User profile settings
+│   ├── screens/            # Main application screens
+│   │   ├── mainScreen.dart
+│   │   ├── cart_screen.dart
+│   │   ├── wallet_screen.dart
+│   │   └── purchase_history_screen.dart
+│   ├── utils/              # Utility functions and services
+│   │   ├── models/         # Data models (Product, etc.)
+│   │   └── services/       # API, Firebase, Cart services
+│   ├── main.dart           # App entry point
+│   ├── navigator.dart      # Navigation logic
+│   └── product_details.dart
+├── linux/                  # Linux platform code
+├── macos/                  # macOS platform code
+├── web/                    # Web platform code
+├── windows/                # Windows platform code
 ├── analysis_options.yaml
 ├── firebase.json
 ├── pubspec.yaml
-├── README.md
-└── ...
+└── README.md
 ```
 
-## Main App Flow
+## Application Flow
 
-- `lib/main.dart` initializes Firebase and launches the application.
-- `lib/auth/login_page.dart` handles login and account access.
-- `lib/screens/mainScreen.dart` displays the marketplace grid and category navigation.
-- `lib/product_details.dart` provides product-specific details.
-- `lib/screens/cart_screen.dart` manages shopping cart actions.
-- `lib/screens/wallet_screen.dart` and `lib/screens/purchase_history_screen.dart` handle wallet and order tracking.
+1. **Authentication**: Users start at `LoginPage` or register for a new account
+2. **Main Marketplace**: `MarketApp` displays products in a grid with category filtering via navigation drawer
+3. **Product Details**: Tap any product to view full details, including blockchain supply chain verification
+4. **Shopping**: Add products to cart via `CartPage`
+5. **Wallet & Orders**: Manage wallet balance and track purchase history
+6. **Profile**: Update user settings and view account information
+
+### Key Screens
+
+- `lib/auth/login_page.dart` - Authentication entry point
+- `lib/screens/mainScreen.dart` - Product marketplace with category navigation
+- `lib/product_details.dart` - Product details and supply chain information
+- `lib/screens/cart_screen.dart` - Shopping cart management
+- `lib/screens/wallet_screen.dart` - Wallet and payment tracking
+- `lib/screens/purchase_history_screen.dart` - Order history and verification
+- `lib/profile/profile_settings_page.dart` - User account settings
 
 ## Getting Started
 
 ### Prerequisites
 
-- Flutter SDK installed
-- A Firebase project configured for the app
-- An IDE such as VS Code or Android Studio
+- Flutter SDK (version 3.7.2 or higher)
+- Dart SDK
+- Firebase project configured
+- IDE (VS Code, Android Studio, or Xcode for iOS development)
 
 ### Installation
 
-1. Clone the repository:
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/aguCompbbky/VerifiedMarket.git
+   cd VerifiedMarket
+   ```
 
-```bash
-git clone https://github.com/aguCompbbky/VerifiedMarket.git
-cd VerifiedMarket
-```
+2. **Install Flutter dependencies**:
+   ```bash
+   flutter pub get
+   ```
 
-2. Install dependencies:
+3. **Configure Firebase**:
+   ```bash
+   flutterfire configure
+   ```
+   Ensure your Firebase project is set up and the configuration matches your target platforms.
 
-```bash
-flutter pub get
-```
+4. **Run the app**:
+   ```bash
+   flutter run
+   ```
 
-3. Configure Firebase:
+### Build for Production
 
-```bash
-flutterfire configure
-```
+- **Android**: `flutter build apk` or `flutter build appbundle`
+- **iOS**: `flutter build ios`
+- **Web**: `flutter build web`
 
-If the project already contains Firebase configuration files, ensure they match your project setup and environment.
+## Firebase Setup
 
-4. Run the app:
+The application requires Firebase to be initialized with the following services:
 
-```bash
-flutter run
-```
+- **Firebase Auth**: User authentication
+- **Cloud Firestore**: Real-time product and order data
+- **Firebase Storage**: Product images and supply chain documentation
+- **Firebase Messaging**: Push notifications for orders and updates
 
-## Firebase Notes
+Ensure your `google-services.json` (Android) and `GoogleService-Info.plist` (iOS) are properly configured in your Firebase console.
 
-The application initializes Firebase in `lib/main.dart` using generated platform options. If you are setting up the project from scratch, make sure the Firebase configuration is regenerated and committed in the appropriate Flutter-generated files.
+## Blockchain Integration
 
-## Backend / Data Notes
+VerifiedMarket uses blockchain technology to:
 
-This app uses remote HTTP requests and Firebase-backed services for login, product data, and user-specific operations. If you are modifying or extending the app, verify the corresponding API endpoints and backend availability before deployment.
+- **Record Product Origin**: Immutably log where products originate
+- **Track Processing & Handling**: Document every step in the supply chain
+- **Verify Halal Compliance**: Store certification records on-chain
+- **Assign Halal Tags**: Automatically categorize products based on verified supply chain data
+
+The blockchain integration communicates with backend APIs (`https://agumobile.site/`) to verify supply chain data and assign halal certification status.
+
+## Dependencies
+
+Key Flutter packages used:
+
+- `firebase_core: ^3.12.1` - Firebase initialization
+- `firebase_auth: ^5.5.1` - User authentication
+- `cloud_firestore: ^5.6.5` - Real-time database
+- `firebase_storage: ^12.4.4` - File storage
+- `firebase_messaging: ^15.2.4` - Push notifications
+- `http: ^1.1.0` - HTTP client for API calls
+- `shared_preferences: ^2.2.1` - Local data persistence
+- `intl: ^0.20.2` - Internationalization support
 
 ## Status
 
-The repository is a working Flutter marketplace prototype with a complete mobile interface and app-flow structure for product browsing and ordering.
+VerifiedMarket is a functional Flutter marketplace prototype with:
+- Complete mobile UI and app flow
+- Blockchain supply chain integration
+- Halal certification automation
+- Production-ready architecture for iOS, Android, Web, and Desktop
 
-## Contributing
+## Deployment Notes
 
-Contributions are welcome. If you want to improve functionality, UI, or backend integration, open a pull request with a clear description of the changes.
-
-## License
-
-This repository does not currently include a license file. If you plan to distribute or publish the project, add an appropriate open-source license before release.
+- Update Firebase configuration for your project environment
+- Verify blockchain API endpoints and credentials in backend services
+- Test the supply chain tracking workflow before production release
+- Ensure halal certification rules are correctly configured in your blockchain contract or backend logic
